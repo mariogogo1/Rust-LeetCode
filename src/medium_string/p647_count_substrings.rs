@@ -18,7 +18,9 @@ https://leetcode.cn/problems/palindromic-substrings/description/
 pub struct Solution;
 
 impl Solution {
-    pub fn count_substrings(s: String) -> i32 {}
+    pub fn count_substrings(s: String) -> i32 {
+        unimplemented!();
+    }
 }
 #[cfg(test)]
 mod tests {
