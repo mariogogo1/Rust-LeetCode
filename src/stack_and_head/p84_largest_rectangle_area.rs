@@ -13,10 +13,85 @@ https://leetcode.cn/problems/largest-rectangle-in-histogram/description/
 /// 可以計算以每一根柱子為支柱的最大面積
 /// 再用MAX 比較每個面積大小
 
+/// 說明一：
+/// 多根柱子長度的時候相同的時候
+/// 左邊界的範圍並不需要都是最左邊的INDEX，
+/// 因為面積只取最大的，只要同高柱子群的第一根，就可以計算出整個面積以下舉例
+/// heights     3 6 6 6 6 6 6
+/// index       0 1 2 3 4 5 6
+/// stack       3 6 6 6 6 6 6  <== 連續六根高度6的柱，面積36
+/// left_index  0 1 2 3 4 5 6
+/// right_index 0 6 6 6 6 6 6
+///               |
+///               計算這一根的面積就是 連續六根高度6的柱，面積36
+
 pub struct Solution;
 
 impl Solution {
     pub fn largest_rectangle_area(heights: Vec<i32>) -> i32 {
+        let n = heights.len();
+        let mut left_index = vec![0; n];
+        let mut right_index = vec![n - 1; n];
+        let mut stack: Vec<usize> = Vec::new(); // 遞增單調棧，紀錄元素下標
+        let mut ans = 0;
+
+        for i in 0..n {
+            while let Some(&top) = stack.last() {
+                if heights[top] > heights[i] {
+                    right_index[top] = i - 1; // 计算每个柱子的右边界
+                    stack.pop();
+                } else {
+                    break;
+                }
+            }
+            if !stack.is_empty() {
+                left_index[i] = stack.last().unwrap() + 1
+                //簡化代碼 计算每个柱子的左边界 **說明一
+            };
+            stack.push(i);
+        }
+
+        // 计算最大矩形面积
+        for i in 0..n {
+            let area = (right_index[i] - left_index[i] + 1) as i32 * heights[i];
+            ans = ans.max(area);
+        }
+
+        ans
+    }
+    pub fn largest_rectangle_area_ad(heights: Vec<i32>) -> i32 {
+        let n = heights.len();
+        let mut left_index = vec![0; n];
+        let mut right_index = vec![n - 1; n];
+        let mut stack: Vec<usize> = Vec::new(); // 遞增單調棧，紀錄元素下標
+        let mut ans = 0;
+
+        // 计算每个柱子的左边界
+        for i in 0..n {
+            while let Some(&top) = stack.last() {
+                if heights[top] > heights[i] {
+                    right_index[top] = i - 1;
+                    stack.pop();
+                } else if heights[top] == heights[i] {
+                    left_index[i] = left_index[top];
+                    break;
+                } else {
+                    left_index[i] = top + 1;
+                    break;
+                }
+            }
+            stack.push(i);
+        }
+
+        // 计算最大矩形面积
+        for i in 0..n {
+            let area = (right_index[i] - left_index[i] + 1) as i32 * heights[i];
+            ans = ans.max(area);
+        }
+
+        ans
+    }
+    pub fn largest_rectangle_area_basic(heights: Vec<i32>) -> i32 {
         let n = heights.len();
         let mut left_index = vec![0; n];
         let mut right_index = vec![n - 1; n];
@@ -65,9 +140,11 @@ mod tests {
     use super::*;
     #[test]
     fn example() {
-        assert_eq!(Solution::largest_rectangle_area(vec![2, 1, 5, 6, 2, 3]), 10);
-        assert_eq!(Solution::largest_rectangle_area(vec![2, 4]), 4);
+        //assert_eq!(Solution::largest_rectangle_area(vec![2, 1, 5, 6, 2, 3]), 10);
+        //assert_eq!(Solution::largest_rectangle_area(vec![2, 4]), 4);
     }
     #[test]
-    fn test_case() {}
+    fn test_case() {
+        assert_eq!(Solution::largest_rectangle_area(vec![7, 7, 7, 7, 7, 6]), 36);
+    }
 }

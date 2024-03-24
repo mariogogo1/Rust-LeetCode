@@ -46,33 +46,22 @@ impl Solution {
         let n = heights.len();
         let mut left_index = vec![0; n];
         let mut right_index = vec![n - 1; n];
-        let mut stack: Vec<usize> = Vec::new();
+        let mut stack: Vec<usize> = Vec::new(); // 遞增單調棧，紀錄元素下標
         let mut ans = 0;
 
-        // 计算每个柱子的左边界
         for i in 0..n {
             while let Some(&top) = stack.last() {
-                if heights[top] >= heights[i] {
+                if heights[top] > heights[i] {
+                    right_index[top] = i - 1; // 计算每个柱子的右边界
                     stack.pop();
                 } else {
-                    left_index[i] = top + 1;
                     break;
                 }
             }
-            stack.push(i);
-        }
-
-        // 清空栈，计算每个柱子的右边界
-        stack.clear();
-        for i in (0..n).rev() {
-            while let Some(&top) = stack.last() {
-                if heights[top] >= heights[i] {
-                    stack.pop();
-                } else {
-                    right_index[i] = top - 1;
-                    break;
-                }
-            }
+            if !stack.is_empty() {
+                left_index[i] = stack.last().unwrap() + 1
+                //簡化代碼 计算每个柱子的左边界 **說明一
+            };
             stack.push(i);
         }
 
