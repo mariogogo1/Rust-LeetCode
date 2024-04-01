@@ -1,103 +1,42 @@
 /**
 
-2561. 重排水果
+458. 可怜的小猪
 
-你有两个果篮，每个果篮中有 n 个水果。给你两个下标从 0 开始的整数数组 basket1 和 basket2 ，用以表示两个果篮中每个水果的交换成本。你想要让两个果篮相等。为此，可以根据需要多次执行下述操作：
+有 buckets 桶液体，其中 正好有一桶 含有毒药，其余装的都是水。它们从外观看起来都一样。为了弄清楚哪只水桶含有毒药，你可以喂一些猪喝，通过观察猪是否会死进行判断。不幸的是，你只有 minutesToTest 分钟时间来确定哪桶液体是有毒的。
 
-选中两个下标 i 和 j ，并交换 basket1 中的第 i 个水果和 basket2 中的第 j 个水果。
-交换的成本是 min(basket1i,basket2j) 。
-根据果篮中水果的成本进行排序，如果排序后结果完全相同，则认为两个果篮相等。
+喂猪的规则如下：
 
-返回使两个果篮相等的最小交换成本，如果无法使两个果篮相等，则返回 -1 。
+选择若干活猪进行喂养
+可以允许小猪同时饮用任意数量的桶中的水，并且该过程不需要时间。
+小猪喝完水后，必须有 minutesToDie 分钟的冷却时间。在这段时间里，你只能观察，而不允许继续喂猪。
+过了 minutesToDie 分钟后，所有喝到毒药的猪都会死去，其他所有猪都会活下来。
+重复这一过程，直到时间用完。
+给你桶的数目 buckets ，minutesToDie 和 minutesToTest ，返回 在规定时间内判断哪个桶有毒所需的 最小 猪数 。
 
 提示：
 
-basket1.length == bakste2.length
-1 <= basket1.length <= 105
-1 <= basket1i,basket2i <= 109
+1 <= buckets <= 1000
+1 <= minutesToDie <= minutesToTest <= 100
 
-https://leetcode.cn/problems/rearranging-fruits/description/
+https://leetcode.cn/problems/poor-pigs/description/
 */
 pub struct Solution;
-
-/// 紀錄兩籃的水果，做以下操作：
-/// 紀錄第一籃和第二籃每種水果總數，兩籃有一樣的部分就共同消除
-/// 兩籃剩下的部分合併，若剩下的水果有某種類為單數個，返回-1
-/// 剩下各種水果數量必定偶數，合併之後個數量/2就是最後的果籃部分，
-/// ** 特殊交換操作：使用兩個果籃裡面最小的數字x當工具，"可能"會比兩兩交患的成本低 min(2*x,a,b)
-///     
-use std::collections::HashMap;
+/// 本題想法：
+/// 將豬的個數看成維度 =n
+/// 時間/毒發時間 + 1 = 一隻豬可以測試幾次 = 每一維度的長度 = y
+/// buckets <= y ^ n
+///
+/// 案例說明：
+/// 兩隻豬，100桶水，時間足以測試10次，我們可以將100桶水排成10*10的正方形平面
+/// 小豬A 每次測試喝10桶水，從列1~列10，
+/// 小豬B 每次測試喝10桶水，從行1~行10，
+/// 當小豬A跟B死亡時就可以知道有毒水桶的座標!!
+use std::f64;
 
 impl Solution {
-    fn min(a: i32, b: i32, c: i32) -> i32 {
-        a.min(b).min(c)
+    pub fn poor_pigs(buckets: i32, minutes_to_die: i32, minutes_to_test: i32) -> i32 {
+        let x: f64 = (minutes_to_test / minutes_to_die + 1) as f64;
+        let n: f64 = (buckets as f64 - 0.05).log(x); // 精度問題 0.05調整
+        n.ceil() as i32
     }
-
-    pub fn min_cost(basket1: Vec<i32>, basket2: Vec<i32>) -> i64 {
-        let mut basket1_hashmap: HashMap<i32, i32> = HashMap::new();
-        let mut basket2_hashmap: HashMap<i32, i32> = HashMap::new();
-        let mut min_fruit = i32::MAX;
-
-        for fruit in basket1 {
-            min_fruit = min_fruit.min(fruit);
-            *basket1_hashmap.entry(fruit).or_insert(0) += 1;
-        }
-        for fruit in basket2 {
-            min_fruit = min_fruit.min(fruit);
-            if let Some(s) = basket1_hashmap.get_mut(&fruit) {
-                if *s > 0 {
-                    *s -= 1;
-                } else {
-                    *basket2_hashmap.entry(fruit).or_insert(0) += 1;
-                }
-            } else {
-                *basket2_hashmap.entry(fruit).or_insert(0) += 1;
-            }
-        }
-
-        // 將basket1_hashmap的KEY由大排到小，VALUE為0的跳過
-        let mut basket1_vec = Vec::new();
-        for (fruit, counts) in basket1_hashmap {
-            if counts % 2 == 1 {
-                return -1;
-            }
-            for _ in 0..counts / 2 {
-                basket1_vec.push(fruit);
-            }
-        }
-        basket1_vec.sort_by(|x, y| x.cmp(&y));
-
-        // 將basket2_hashmap的KEY由小排到大
-
-        let mut basket2_vec = Vec::new();
-        for (fruit, counts) in basket2_hashmap {
-            if counts % 2 == 1 {
-                return -1;
-            }
-            for _ in 0..counts / 2 {
-                basket2_vec.push(fruit);
-            }
-        }
-
-        basket2_vec.sort_by(|x, y| y.cmp(&x));
-
-        let mut ans: i64 = 0;
-        for i in 0..basket1_vec.len() {
-            ans += Self::min(basket1_vec[i], basket2_vec[i], 2 * min_fruit) as i64;
-        }
-
-        return ans;
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    #[test]
-    fn example() {
-        assert_eq!(Solution::min_cost(vec![1, 4, 1, 2], vec![4, 2, 2, 2]), 1);
-        assert_eq!(Solution::min_cost(vec![1, 4, 1, 2], vec![4, 2, 2, 5]), -1);
-    }
-    #[test]
-    fn test_case() {}
 }
