@@ -1,76 +1,50 @@
 /**
-382. 链表随机节点
+398. 随机数索引
 
-给你一个单链表，随机选择链表的一个节点，并返回相应的节点值。每个节点 被选中的概率一样 。
+给你一个可能含有 重复元素 的整数数组 nums ，请你随机输出给定的目标数字 target 的索引。你可以假设给定的数字一定存在于数组中。
 
 实现 Solution 类：
 
-Solution(ListNode head) 使用整数数组初始化对象。
-int getRandom() 从链表中随机选择一个节点并返回该节点的值。链表中所有节点被选中的概率相等。
+Solution(int[] nums) 用数组 nums 初始化对象。
+int pick(int target) 从 nums 中选出一个满足 nums[i] == target 的随机索引 i 。如果存在多个有效的索引，则每个索引的返回概率应当相等。
 
 
 提示：
 
-链表中的节点数在范围 [1, 104] 内
--104 <= Node.val <= 104
-至多调用 getRandom 方法 104 次
+1 <= nums.length <= 2 * 104
+-231 <= nums[i] <= 231 - 1
+target 是 nums 中的一个整数
+最多调用 pick 函数 104 次
 
-
-进阶：
-
-如果链表非常大且长度未知，该怎么处理？
-你能否在不使用额外空间的情况下解决此问题？
-
-https://leetcode.cn/problems/linked-list-random-node/description/
+https://leetcode.cn/problems/random-pick-index/description/
 */
-use crate::utils::structs::ListNode;
 use rand::{thread_rng, Rng};
-///进阶：
-///
-///如果链表非常大且长度未知，该怎么处理？
-///你能否在不使用额外空间的情况下解决此问题？
-///
-/// 本題給的內存限制蠻小的
-///
-/// 很基礎的方法可以把練表所有的地址遍歷一遍後記錄下來，即可快速取得值
-/// 但這題是希望我們練習在內存無法全部讀取完資料的數據流情況下做隨機抽取
-/// 水塘抽樣：https://zh.wikipedia.org/wiki/%E6%B0%B4%E5%A1%98%E6%8A%BD%E6%A8%A3
-///
+use std::collections::HashMap;
 
 struct Solution {
-    head: Option<Box<ListNode>>,
-    vector: Vec<i32>,
+    index_hashmap: HashMap<i32, Vec<usize>>,
 }
-
 impl Solution {
-    pub fn new(head: Option<Box<ListNode>>) -> Self {
+    fn new(nums: Vec<i32>) -> Self {
         let mut solution = Solution {
-            head,
-            vector: Vec::new(),
+            index_hashmap: HashMap::new(),
         };
-        if let Some(ref mut head_ptr) = solution.head {
-            solution.vector.push(head_ptr.val);
-            solution.head = head_ptr.next.take();
+        for i in 0..nums.len() {
+            solution
+                .index_hashmap
+                .entry(nums[i])
+                .or_insert(Vec::new())
+                .push(i);
         }
         solution
     }
 
-    pub fn get_random(&mut self) -> i32 {
-        let n_usize = self.vector.len();
+    fn pick(&self, target: i32) -> i32 {
         let mut rng = thread_rng();
-        let index = rng.gen_range(0..n_usize);
-        let mut ans = self.vector[index];
-
-        // 練習水塘抽樣
-        while let Some(ref mut head_ptr) = self.head.take() {
-            self.vector.push(head_ptr.val);
-            self.head = head_ptr.next.take();
-            let prob = rng.gen_range(0..self.vector.len());
-            if prob > n_usize {
-                ans = self.vector[prob];
-            }
+        if let Some(vector) = self.index_hashmap.get(&target) {
+            let s = rng.gen_range(0..vector.len());
+            return vector[s] as i32;
         }
-
-        ans
+        -1
     }
 }
