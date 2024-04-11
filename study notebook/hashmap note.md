@@ -1,5 +1,5 @@
 # 哈希表語法使用筆記    
-1.常用語法  
+1.HashMap常用語法  
     (1). contains_key(&self, k: &K) -> bool
     (2). entry(&mut self, k: K) -> Entry<K, V>  
     (3). or_insert(&mut self, k: K, v: V) -> &mut V： 無須顯式聲明，rust 自動推斷value為可變
@@ -26,9 +26,9 @@ pub enum Entry<'a, K: 'a, V: 'a> {
 Occupied 表示 HashMap 中已经有一个键值对的条目，对应的类型是 OccupiedEntry。  
 Vacant 表示 HashMap 中还没有对应键值对的条目，对应的类型是 VacantEntry。  
 
-3.進階：    
-    (1). 
-    (2).    
+3.HashSet常用語法:    
+    (1). contains(&x)
+    (2). insert(x)
     (3). 
 
 
