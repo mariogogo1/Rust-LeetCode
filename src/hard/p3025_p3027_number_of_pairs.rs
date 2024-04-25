@@ -18,7 +18,7 @@ points[i].length == 2
 points[i] 点对两两不同。
 https://leetcode.cn/problems/find-the-number-of-ways-to-place-people-ii/description/
 */
-/// 這題很關鍵，幾乎是遞增子序列的基礎題目，俄羅斯套娃信封這種經典題目就是從這裡延伸的
+
 pub struct Solution;
 
 impl Solution {

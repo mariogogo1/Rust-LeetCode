@@ -30,3 +30,29 @@ impl TreeNode {
         }
     }
 }
+
+pub struct Directions {
+    steps: Vec<(i32, i32)>,
+}
+
+impl Directions {
+    pub fn new(dirs: i32) -> Self {
+        if dirs == 8 {
+            return Directions {
+                steps: vec![
+                    (1, 0),
+                    (0, 1),
+                    (-1, 0),
+                    (0, -1),
+                    (1, 1),
+                    (1, -1),
+                    (-1, 1),
+                    (-1, -1),
+                ],
+            };
+        }
+        return Directions {
+            steps: vec![(1, 0), (0, 1), (-1, 0), (0, -1)],
+        };
+    }
+}
