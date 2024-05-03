@@ -32,6 +32,7 @@ impl Solution {
                 ans += inc;
             } else {
                 dec += 1;
+                //把遞增的最大一根的數值移動到遞減
                 if dec == inc {
                     dec += 1;
                 }

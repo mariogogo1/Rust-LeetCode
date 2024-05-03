@@ -1,11 +1,13 @@
 /**
-100. 相同的树
+337. 打家劫舍 III
 
-给你两棵二叉树的根节点 p 和 q ，编写一个函数来检验这两棵树是否相同。
+小偷又发现了一个新的可行窃的地区。这个地区只有一个入口，我们称之为 root 。
 
-如果两个树在结构上相同，并且节点具有相同的值，则认为它们是相同的
+除了 root 之外，每栋房子有且只有一个“父“房子与之相连。一番侦察之后，聪明的小偷意识到“这个地方的所有房屋的排列类似于一棵二叉树”。 如果 两个直接相连的房子在同一天晚上被打劫 ，房屋将自动报警。
 
-https://leetcode.cn/problems/same-tree/description/
+给定二叉树的 root 。返回 在不触动警报的情况下 ，小偷能够盗取的最高金额 。
+
+https://leetcode.cn/problems/house-robber-iii/description/
 */
 pub struct Solution;
 
@@ -13,31 +15,18 @@ use crate::utils::structs::TreeNode;
 use std::cell::RefCell;
 use std::rc::Rc;
 impl Solution {
-    pub fn is_same_tree(
-        p: Option<Rc<RefCell<TreeNode>>>,
-        q: Option<Rc<RefCell<TreeNode>>>,
-    ) -> bool {
-        if let Some(ref p_node) = p {
-            if let Some(ref q_node) = q {
-                if p_node.borrow().val == q_node.borrow().val {
-                    let p_left = p_node.borrow_mut().left.take();
-                    let q_left = q_node.borrow_mut().left.take();
+    fn dfs(root: Option<Rc<RefCell<TreeNode>>>) -> (i32, i32) {
+        if let Some(node) = root {
+            let v = node.borrow().val;
+            let (r, r_n) = Self::dfs(node.borrow_mut().right.take());
+            let (l, l_n) = Self::dfs(node.borrow_mut().left.take());
+            return ((r_n + l_n + v).max(r + l), r + l);
+        }
+        return (0, 0);
+    }
 
-                    return Self::is_same_tree(p_left, q_left)
-                        && Self::is_same_tree(
-                            p_node.borrow_mut().right.take(),
-                            q_node.borrow_mut().right.take(),
-                        );
-                } else {
-                    return false;
-                }
-            } else {
-                return false;
-            }
-        }
-        if let Some(ref q_node) = q {
-            return false;
-        }
-        true
+    pub fn rob(root: Option<Rc<RefCell<TreeNode>>>) -> i32 {
+        let (ans, _) = Self::dfs(root);
+        return ans;
     }
 }

@@ -33,21 +33,18 @@ impl Solution {
         for i in 0..n {
             pair.push((wage[i] as f64 / quality[i] as f64, quality[i]));
         }
-        pair.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap()); // Sort by wage/quality ratio
+        pair.sort_unstable_by(|a, b| a.0.partial_cmp(&b.0).unwrap()); // Sort by wage/quality ratio
 
         let mut ans: f64 = f64::MAX;
         let mut min_heap: BinaryHeap<i32> = BinaryHeap::new();
         let mut total_quality = 0;
-        for i in 0..(k - 1) {
+        for i in 0..k {
             min_heap.push(pair[i].1);
             total_quality += pair[i].1;
         }
+        ans = ans.min(total_quality as f64 * pair[k - 1].0);
 
-        for i in (k - 1)..n {
-            total_quality += pair[i].1;
-            ans = ans.min(total_quality as f64 * pair[i].0);
-            total_quality -= pair[i].1;
-
+        for i in k..n {
             // pair[i].1維護進大根堆裡面
             if let Some(&val) = min_heap.peek() {
                 if val > pair[i].1 {
@@ -55,6 +52,7 @@ impl Solution {
                     total_quality += pair[i].1;
                     min_heap.pop();
                     min_heap.push(pair[i].1);
+                    ans = ans.min(total_quality as f64 * pair[i].0);
                 }
             }
         }
